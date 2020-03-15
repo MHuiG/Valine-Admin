@@ -8,7 +8,7 @@ function sendNotification(currentComment, defaultIp) {
 	
 	if(currentComment.get('url')=="TestPath"){
 		console.log('TestPath，不会发送通知');
-	return;
+		return;
 	}
     // 发送博主通知邮件
     if (currentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
