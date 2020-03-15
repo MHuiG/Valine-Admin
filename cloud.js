@@ -5,6 +5,11 @@ const request = require('request');
 const spam = require('./utilities/check-spam');
 
 function sendNotification(currentComment, defaultIp) {
+	
+	if(currentComment.get('url')=="TestPath"){
+	console.log('TestPath，不会发送通知');
+	return;
+	}
     // 发送博主通知邮件
     if (currentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
         mail.notice(currentComment);
@@ -24,10 +29,7 @@ function sendNotification(currentComment, defaultIp) {
         console.log('评论未通过审核，通知邮件暂不发送');
         return;
     }
-	if(currentComment.get('url')=="TestPath"){
-		console.log('TestPath，不会发送通知');
-		return;
-	}
+
 	
     let query = new AV.Query('Comment');
     query.get(rid).then(function (parentComment) {
