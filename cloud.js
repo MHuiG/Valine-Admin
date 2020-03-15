@@ -27,7 +27,8 @@ function sendNotification(currentComment, defaultIp) {
 
     let query = new AV.Query('Comment');
     query.get(rid).then(function (parentComment) {
-		if(parentComment.get('url')=="TestPath"){
+		console.log(parentComment.get('url'));
+		if(parentComment.get('url')=="/TestPath"){
 			console.log('TestPath，不会发送通知');
 			return;
 		}
