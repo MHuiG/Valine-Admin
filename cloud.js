@@ -27,6 +27,10 @@ function sendNotification(currentComment, defaultIp) {
 
     let query = new AV.Query('Comment');
     query.get(rid).then(function (parentComment) {
+		if(parentComment.get('url')=="TestPath"){
+			console.log('TestPath，不会发送通知');
+			return;
+		}
         if (parentComment.get('mail') && parentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
             mail.send(currentComment, parentComment);
         } else {
@@ -67,7 +71,7 @@ AV.Cloud.define('resend_mails', function(req) {
 
 AV.Cloud.define('self_wake', function(req) {
     request(process.env.ADMIN_URL, function (error, response, body) {
-        console.log('自唤醒任务执行成功，响应状态码为:', response && response.statusCode);
+        console.log('自唤醒任务执行成功');
       });
 });
 
