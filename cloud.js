@@ -7,7 +7,7 @@ const spam = require('./utilities/check-spam');
 function sendNotification(currentComment, defaultIp) {
 	
 	if(currentComment.get('url')=="TestPath"){
-	console.log('TestPath，不会发送通知');
+		console.log('TestPath，不会发送通知');
 	return;
 	}
     // 发送博主通知邮件
