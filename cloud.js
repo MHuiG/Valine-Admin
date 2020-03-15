@@ -24,14 +24,13 @@ function sendNotification(currentComment, defaultIp) {
         console.log('评论未通过审核，通知邮件暂不发送');
         return;
     }
-
+	if(currentComment.get('url')=="TestPath"){
+		console.log('TestPath，不会发送通知');
+		return;
+	}
+	
     let query = new AV.Query('Comment');
     query.get(rid).then(function (parentComment) {
-		console.log(parentComment.get('url'));
-		if(parentComment.get('url')=="/TestPath"){
-			console.log('TestPath，不会发送通知');
-			return;
-		}
         if (parentComment.get('mail') && parentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
             mail.send(currentComment, parentComment);
         } else {
