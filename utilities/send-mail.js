@@ -48,7 +48,7 @@ exports.notice = (comment) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            return console.log(error);
+            return console.log('博主通知邮件发送失败: %s', error);
         }
         console.log('博主通知邮件成功发送: %s', info.response);
         comment.set('isNotified', true);
@@ -79,7 +79,7 @@ exports.send = (currentComment, parentComment)=> {
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            return console.log(error);
+            return console.log('AT通知邮件发送失败: %s', error);
         }
         console.log('AT通知邮件成功发送: %s', info.response);
         currentComment.set('isNotified', true);

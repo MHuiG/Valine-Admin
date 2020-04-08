@@ -11,9 +11,11 @@ function sendNotification(currentComment, defaultIp) {
 		return;
 	}
     // 发送博主通知邮件
-    if (currentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
-        mail.notice(currentComment);
-    }
+	if (process.env.SEND_BLOGGER_EMAIL!=0){
+		if (currentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
+			mail.notice(currentComment);
+		}
+	}
 
     let ip = currentComment.get('ip') || defaultIp;
     console.log('IP: %s', ip);
