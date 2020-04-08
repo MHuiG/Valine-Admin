@@ -17,7 +17,7 @@
     "express": "4.17.1",
     "leancloud-storage": "4.5.3",
     "leanengine": "3.6.0",
-    "nodemailer": "4.7.0",
+    "nodemailer": "6.4.6",
     "postman-request": "2.88.1-postman.8-beta.1"
   },
   "devDependencies": {
