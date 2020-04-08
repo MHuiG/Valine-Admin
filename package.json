@@ -9,16 +9,16 @@
     "dev": "nodemon server.js -- "
   },
   "dependencies": {
-    "akismet-api": "3.0.0",
+    "akismet-api": "5.0.0",
     "body-parser": "1.19.0",
     "connect-timeout": "1.9.0",
     "cookie-parser": "1.4.5",
-    "ejs": "2.7.4",
-    "express": "4.12.3",
-    "leancloud-storage": "3.15.0",
+    "ejs": "3.0.2",
+    "express": "4.17.1",
+    "leancloud-storage": "4.5.3",
     "leanengine": "3.6.0",
     "nodemailer": "4.7.0",
-    "postman-request": "2.88.1-postman.22"
+    "postman-request": "2.88.1-postman.8-beta.1"
   },
   "devDependencies": {
     "nodemon": "1.19.4"
