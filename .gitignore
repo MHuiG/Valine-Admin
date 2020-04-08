@@ -3,7 +3,7 @@ npm-debug.log
 start.sh
 .avoscloud
 .leancloud
-
+package-lock.json
 # VIM
 *~
 *.swp
