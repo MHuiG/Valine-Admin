@@ -21,17 +21,23 @@ pull_request_rules:
     conditions:
       - author~=^dependabot(|-preview)\[bot\]$
     actions:
+      merge:
+        method: merge
       label:
         add: ["Build","🛠 Improvement"]
   - name: automatic merge for Renovate pull requests
     conditions:
       - author=renovate[bot]
     actions:
+      merge:
+        method: merge
       label:
         add: ["Build","🛠 Improvement"]
   - name: automatic merge for ImgBot pull requests
     conditions:
       - author=imgbot[bot]
     actions:
+      merge:
+        method: merge
       label:
         add: ["🛠 Improvement"]
