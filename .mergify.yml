@@ -1,0 +1,37 @@
+pull_request_rules:
+  - name: delete head branch after merge
+    conditions:
+      - merged
+    actions:
+      delete_head_branch: {}
+  - name: remove outdated reviews
+    conditions:
+      - base=master
+    actions:
+      dismiss_reviews: {}
+  - name: automatic merge if author is MHuiG
+    conditions:
+      - author=MHuiG
+    actions:
+      merge:
+        method: merge
+      label:
+        add: ["Auto merge"]
+  - name: automatic merge for Dependabot pull requests
+    conditions:
+      - author~=^dependabot(|-preview)\[bot\]$
+    actions:
+      label:
+        add: ["Build","🛠 Improvement"]
+  - name: automatic merge for Renovate pull requests
+    conditions:
+      - author=renovate[bot]
+    actions:
+      label:
+        add: ["Build","🛠 Improvement"]
+  - name: automatic merge for ImgBot pull requests
+    conditions:
+      - author=imgbot[bot]
+    actions:
+      label:
+        add: ["🛠 Improvement"]
