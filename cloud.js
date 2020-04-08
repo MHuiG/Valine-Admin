@@ -1,7 +1,7 @@
 const AV = require('leanengine');
 const mail = require('./utilities/send-mail');
 const Comment = AV.Object.extend('Comment');
-const request = require('request');
+const request = require('postman-request');
 const spam = require('./utilities/check-spam');
 
 function sendNotification(currentComment, defaultIp) {

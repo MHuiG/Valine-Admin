@@ -18,7 +18,7 @@
     "leancloud-storage": "3.15.0",
     "leanengine": "3.6.0",
     "nodemailer": "4.7.0",
-    "request": "2.88.2"
+    "postman-request": "^2.88.1-postman.22"
   },
   "devDependencies": {
     "nodemon": "1.19.4"
