@@ -21,7 +21,7 @@
     "postman-request": "2.88.1-postman.8-beta.1"
   },
   "devDependencies": {
-    "nodemon": "1.19.4"
+    "nodemon": "2.0.3"
   },
   "engines": {
     "node": "12.x"
