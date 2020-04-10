@@ -105,8 +105,9 @@ AV.Cloud.define('check_spam', function(req) {
 	let IPv6reg = /^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$/
 	let Emailreg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
     let query = new AV.Query(Comment);
-    query.greaterThanOrEqualTo('createdAt', new Date(new Date().getTime() - 24*60*60*1000));
+	query.descending('createdAt');
     query.notEqualTo('isNotified', true);
+    query.notEqualTo('isNotified', false);
     query.limit(1000);
     return query.find().then(function(results) {
 		for (var i = 0; i < results.length; i++ ) {
@@ -116,15 +117,18 @@ AV.Cloud.define('check_spam', function(req) {
 				results[i].save();
 				console.log(results[i]);
 				console.log('IP未通过审核..');
-			}
-			if (!Emailreg.test(results[i].get('mail'))){
+			}else if (!Emailreg.test(results[i].get('mail'))){
 				results[i].set('isSpam', true);
 				results[i].setACL(new AV.ACL({"*":{"read":false}}));
 				results[i].save();
 				console.log(results[i]);
 				console.log('Email未通过审核..');
+			}else{
+				results[i].set('isSpam', false);
+				results[i].save();
 			}
 		}
     });
+	console.log('垃圾评论检查完成');
 });
 
