@@ -110,25 +110,34 @@ AV.Cloud.define('check_spam', function(req) {
     query.notEqualTo('isNotified', false);
     query.limit(1000);
     return query.find().then(function(results) {
-		for (var i = 0; i < results.length; i++ ) {
-			if (!(IPv4reg.test(results[i].get('ip'))||IPv6reg.test(results[i].get('ip')))){
-				results[i].set('isSpam', true);
-				results[i].setACL(new AV.ACL({"*":{"read":false}}));
-				results[i].save();
-				console.log(results[i]);
-				console.log('IP未通过审核..');
-			}else if (!Emailreg.test(results[i].get('mail'))){
-				results[i].set('isSpam', true);
-				results[i].setACL(new AV.ACL({"*":{"read":false}}));
-				results[i].save();
-				console.log(results[i]);
-				console.log('Email未通过审核..');
-			}else{
-				results[i].set('isSpam', false);
-				results[i].save();
+        new Promise((resolve, reject)=>{
+            count = results.length;
+			for (var i = 0; i < results.length; i++ ) {
+				if (!(IPv4reg.test(results[i].get('ip'))||IPv6reg.test(results[i].get('ip')))){
+					results[i].set('isSpam', true);
+					results[i].setACL(new AV.ACL({"*":{"read":false}}));
+					results[i].save();
+					console.log(results[i]);
+					console.log('IP未通过审核..');
+				}else if (!Emailreg.test(results[i].get('mail'))){
+					results[i].set('isSpam', true);
+					results[i].setACL(new AV.ACL({"*":{"read":false}}));
+					results[i].save();
+					console.log(results[i]);
+					console.log('Email未通过审核..');
+				}else{
+					results[i].set('isSpam', false);
+					results[i].save();
+				}
 			}
-		}
+            resolve(count);
+        }).then((count)=>{
+            console.log(`${count}条垃圾评论检查完毕！`);
+        }).catch(()=>{
+
+        });
     });
-	console.log('垃圾评论检查完成');
+	console.log('垃圾评论检查完成....');
+
 });
 
