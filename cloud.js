@@ -106,29 +106,31 @@ AV.Cloud.define('check_spam', function(req) {
 	let Emailreg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
     let query = new AV.Query(Comment);
 	query.descending('createdAt');
-    query.notEqualTo('isNotified', true);
-    query.notEqualTo('isNotified', false);
+    query.notEqualTo('isSpam', true);
+    query.notEqualTo('isSpam', false);
     query.limit(1000);
     return query.find().then(function(results) {
         new Promise((resolve, reject)=>{
             count = results.length;
 			for (var i = 0; i < results.length; i++ ) {
-				if (!(IPv4reg.test(results[i].get('ip'))||IPv6reg.test(results[i].get('ip')))){
-					results[i].set('isSpam', true);
-					results[i].setACL(new AV.ACL({"*":{"read":false}}));
-					results[i].save();
-					console.log(results[i]);
-					console.log('IP未通过审核..');
-				}else if (!Emailreg.test(results[i].get('mail'))){
-					results[i].set('isSpam', true);
-					results[i].setACL(new AV.ACL({"*":{"read":false}}));
-					results[i].save();
-					console.log(results[i]);
-					console.log('Email未通过审核..');
-				}else{
-					results[i].set('isSpam', false);
-					results[i].save();
-				}
+				setTimeout(function () {
+					if (!(IPv4reg.test(results[i].get('ip'))||IPv6reg.test(results[i].get('ip')))){
+						results[i].set('isSpam', true);
+						results[i].setACL(new AV.ACL({"*":{"read":false}}));
+						results[i].save();
+						console.log(results[i]);
+						console.log('IP未通过审核..');
+					}else if (!Emailreg.test(results[i].get('mail'))){
+						results[i].set('isSpam', true);
+						results[i].setACL(new AV.ACL({"*":{"read":false}}));
+						results[i].save();
+						console.log(results[i]);
+						console.log('Email未通过审核..');
+					}else{
+						results[i].set('isSpam', false);
+						results[i].save();
+					}
+				}, i*500)
 			}
             resolve(count);
         }).then((count)=>{
