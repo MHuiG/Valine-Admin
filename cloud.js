@@ -22,7 +22,7 @@ function sendNotification(currentComment, defaultIp) {
 	let IPv4reg = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/
 	let IPv6reg = /^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$/
 	let Emailreg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
-	if ((typeof results[i].get('ip') == 'undefined')||(!(IPv4reg.test(results[i].get('ip'))||IPv6reg.test(results[i].get('ip'))))){
+	if ((typeof currentComment.get('ip') == 'undefined')||(!(IPv4reg.test(currentComment.get('ip'))||IPv6reg.test(currentComment.get('ip'))))){
 		currentComment.set('isSpam', true);
 		currentComment.setACL(new AV.ACL({"*":{"read":false}}));
 		currentComment.save();
@@ -32,7 +32,7 @@ function sendNotification(currentComment, defaultIp) {
 	    spam.checkSpam(currentComment, ip);
 	}
 	console.log('Email: %s', currentComment.get('mail'));
-    if ((typeof results[i].get('mail') == 'undefined')||(!Emailreg.test(currentComment.get('mail')))){
+    if ((typeof currentComment.get('mail') == 'undefined')||(!Emailreg.test(currentComment.get('mail')))){
 		currentComment.set('isSpam', true);
 		currentComment.setACL(new AV.ACL({"*":{"read":false}}));
 		currentComment.save();
