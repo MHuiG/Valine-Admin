@@ -132,12 +132,13 @@ AV.Cloud.define('check_spam', function(req) {
 			console.log(e)
 		}
 	}
-    return query.find().then(function(results) {
+    query.find().then(function(results) {
 		count = results.length;
 		console.log(`共检查${count}条评论`);
 		for (var i = 0; i < results.length; i++ ) {
 			setTimeout(SpamChecker(results[i]), i*500)
 		}
     });
+	return 0;
 });
 
