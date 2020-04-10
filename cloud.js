@@ -138,7 +138,6 @@ AV.Cloud.define('check_spam', function(req) {
 		for (var i = 0; i < results.length; i++ ) {
 			setTimeout(SpamChecker(results[i]), i*500)
 		}
-        });
     });
 });
 
