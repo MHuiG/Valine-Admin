@@ -144,7 +144,5 @@ AV.Cloud.define('check_spam', function(req) {
 
         });
     });
-	console.log('垃圾评论检查完成....');
-
 });
 
