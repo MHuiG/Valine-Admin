@@ -21,11 +21,22 @@ function sendNotification(currentComment, defaultIp) {
     console.log('IP: %s', ip);
 	let IPv4reg = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/
 	let IPv6reg = /^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$/
-	if (IPv4reg.test(ip)||IPv6reg.test(ip)){
+	let Emailreg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
+	if (IPv4reg.test(currentComment.get('ip'))||IPv6reg.test(currentComment.get('ip'))){
 	  spam.checkSpam(currentComment, ip);
 	}else{
 		currentComment.set('isSpam', true);
-		console.log('IP未通过审核，通知邮件暂不发送');
+		currentComment.setACL(new AV.ACL({"*":{"read":false}}));
+		currentComment.save();
+		console.log('IP未通过审核..');
+		return
+	}
+	console.log('Email: %s', currentComment.get('mail'));
+    if (!Emailreg.test(currentComment.get('mail'))){
+		currentComment.set('isSpam', true);
+		currentComment.setACL(new AV.ACL({"*":{"read":false}}));
+		currentComment.save();
+		console.log('Email未通过审核..');
 		return
 	}
 	
@@ -86,5 +97,34 @@ AV.Cloud.define('self_wake', function(req) {
     request(process.env.ADMIN_URL, function (error, response, body) {
         console.log('自唤醒任务执行成功');
       });
+});
+
+AV.Cloud.define('check_spam', function(req) {
+	console.log('正在检查垃圾评论');
+	let IPv4reg = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/
+	let IPv6reg = /^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$/
+	let Emailreg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
+    let query = new AV.Query(Comment);
+    query.greaterThanOrEqualTo('createdAt', new Date(new Date().getTime() - 24*60*60*1000));
+    query.notEqualTo('isNotified', true);
+    query.limit(1000);
+    return query.find().then(function(results) {
+		for (var i = 0; i < results.length; i++ ) {
+			if (!(IPv4reg.test(results[i].get('ip'))||IPv6reg.test(results[i].get('ip')))){
+				results[i].set('isSpam', true);
+				results[i].setACL(new AV.ACL({"*":{"read":false}}));
+				results[i].save();
+				console.log(results[i]);
+				console.log('IP未通过审核..');
+			}
+			if (!Emailreg.test(results[i].get('mail'))){
+				results[i].set('isSpam', true);
+				results[i].setACL(new AV.ACL({"*":{"read":false}}));
+				results[i].save();
+				console.log(results[i]);
+				console.log('Email未通过审核..');
+			}
+		}
+    });
 });
 
