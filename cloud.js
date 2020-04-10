@@ -113,7 +113,7 @@ AV.Cloud.define('check_spam', function(req) {
         new Promise((resolve, reject)=>{
             count = results.length;
 			for (var i = 0; i < results.length; i++ ) {
-				setTimeout(function (results[i]) {
+				setTimeout(function (results,i) {
 					try{
 						if ((typeof results[i].get('ip') == 'undefined')||(!(IPv4reg.test(results[i].get('ip'))||IPv6reg.test(results[i].get('ip'))))){
 							results[i].set('isSpam', true);
