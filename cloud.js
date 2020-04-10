@@ -137,7 +137,7 @@ AV.Cloud.define('check_spam', function(req) {
 			count = results.length;
 			console.log(`共检查${count}条评论`);
 			for (var i = 0; i < results.length; i++ ) {
-				SpamChecker(results[i]), i*500)
+				SpamChecker(results[i])
 			}
 		resolve(count);
         }).then((count)=>{
