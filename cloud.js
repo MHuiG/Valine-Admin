@@ -113,29 +113,7 @@ AV.Cloud.define('check_spam', function(req) {
         new Promise((resolve, reject)=>{
             count = results.length;
 			for (var i = 0; i < results.length; i++ ) {
-				setTimeout(function (results,i) {
-					try{
-						if ((typeof results[i].get('ip') == 'undefined')||(!(IPv4reg.test(results[i].get('ip'))||IPv6reg.test(results[i].get('ip'))))){
-							results[i].set('isSpam', true);
-							results[i].setACL(new AV.ACL({"*":{"read":false}}));
-							results[i].save();
-							console.log(results[i]);
-							console.log('IP未通过审核..');
-						}else if ((typeof results[i].get('mail') == 'undefined')||(!Emailreg.test(results[i].get('mail')))){
-							results[i].set('isSpam', true);
-							results[i].setACL(new AV.ACL({"*":{"read":false}}));
-							results[i].save();
-							console.log(results[i]);
-							console.log('Email未通过审核..');
-						}else{
-							results[i].set('isSpam', false);
-							results[i].save();
-						}
-					}catch(e){
-						console.log(results[i])
-						console.log(e)
-					}
-				}, i*500)
+				setTimeout(SpamChecker(results[i]), i*500)
 			}
             resolve(count);
         }).then((count)=>{
@@ -144,5 +122,28 @@ AV.Cloud.define('check_spam', function(req) {
 
         });
     });
+	const SpamChecker=(o)=>{
+		try{
+			if ((typeof o.get('ip') == 'undefined')||(!(IPv4reg.test(o.get('ip'))||IPv6reg.test(o.get('ip'))))){
+				o.set('isSpam', true);
+				o.setACL(new AV.ACL({"*":{"read":false}}));
+				o.save();
+				console.log(o);
+				console.log('IP未通过审核..');
+			}else if ((typeof o.get('mail') == 'undefined')||(!Emailreg.test(o.get('mail')))){
+				o.set('isSpam', true);
+				o.setACL(new AV.ACL({"*":{"read":false}}));
+				o.save();
+				console.log(o);
+				console.log('Email未通过审核..');
+			}else{
+				o.set('isSpam', false);
+				o.save();
+			}
+		}catch(e){
+			console.log(o)
+			console.log(e)
+		}
+	}
 });
 
