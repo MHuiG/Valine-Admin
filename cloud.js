@@ -57,7 +57,7 @@ AV.Cloud.define('resend_mails', function(req) {
     query.greaterThanOrEqualTo('createdAt', new Date(new Date().getTime() - 24*60*60*1000));
     query.notEqualTo('isNotified', true);
     // 如果你的评论量很大，可以适当调高数量限制，最高1000
-    query.limit(200);
+    query.limit(1000);
     return query.find().then(function(results) {
         new Promise((resolve, reject)=>{
             count = results.length;
