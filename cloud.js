@@ -19,8 +19,17 @@ function sendNotification(currentComment, defaultIp) {
 
     let ip = currentComment.get('ip') || defaultIp;
     console.log('IP: %s', ip);
-    spam.checkSpam(currentComment, ip);
-
+	let IPv4reg = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/
+	let IPv6reg = /^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$/
+	if (IPv4reg.test(ip)||IPv6reg.test(ip)){
+	  spam.checkSpam(currentComment, ip);
+	}else{
+		currentComment.set('isSpam', true);
+		console.log('IP未通过审核，通知邮件暂不发送');
+		return
+	}
+	
+	
     // AT评论通知
     let rid =currentComment.get('pid') || currentComment.get('rid');
 
