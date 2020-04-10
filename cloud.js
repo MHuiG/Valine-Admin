@@ -110,7 +110,6 @@ AV.Cloud.define('check_spam', function(req) {
     query.notEqualTo('isSpam', false);
     query.limit(1000);
 	const SpamChecker=(o)=>{
-		console.log(o)
 		try{
 			if ((typeof o.get('ip') == 'undefined')||(!(IPv4reg.test(o.get('ip'))||IPv6reg.test(o.get('ip'))))){
 				o.set('isSpam', true);
@@ -134,16 +133,11 @@ AV.Cloud.define('check_spam', function(req) {
 		}
 	}
     return query.find().then(function(results) {
-        new Promise((resolve, reject)=>{
-            count = results.length;
-			console.log(`共检查${count}条评论`);
-			for (var i = 0; i < results.length; i++ ) {
-				setTimeout(SpamChecker(results[i]), i*500)
-			}
-        }).then(()=>{
-            console.log(`垃圾评论检查完毕！`);
-        }).catch(()=>{
-
+		count = results.length;
+		console.log(`共检查${count}条评论`);
+		for (var i = 0; i < results.length; i++ ) {
+			setTimeout(SpamChecker(results[i]), i*500)
+		}
         });
     });
 });
