@@ -133,11 +133,18 @@ AV.Cloud.define('check_spam', function(req) {
 		}
 	}
     query.find().then(function(results) {
-		count = results.length;
-		console.log(`共检查${count}条评论`);
-		for (var i = 0; i < results.length; i++ ) {
-			setTimeout(SpamChecker(results[i]), i*500)
-		}
+		new Promise((resolve, reject)=>{
+			count = results.length;
+			console.log(`共检查${count}条评论`);
+			for (var i = 0; i < results.length; i++ ) {
+				setTimeout(SpamChecker(results[i]), i*500)
+			}
+		resolve(count);
+        }).then((count)=>{
+            console.log(`${count}条处理完毕！`);
+        }).catch(()=>{
+
+        });
     });
 	return 0;
 });
