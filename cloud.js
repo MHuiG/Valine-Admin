@@ -137,13 +137,14 @@ AV.Cloud.define('check_spam', function(req) {
 		count = results.length;
 		console.log(`共检查${count}条评论`);
 		return Promise.all(results.map(function (element, index, array) {
-			return SpamChecker(element)
-		}).then(()=>{
-			console.log(`检查完成`);
-        }).catch(()=>{
+			     return SpamChecker(element)
+				});
+			).then(()=>{
+				console.log(`检查完成`);
+			}).catch(()=>{
 
-        });
-    });
+			});
+	});
 	return 0;
 });
 
