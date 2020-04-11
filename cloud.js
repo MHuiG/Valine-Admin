@@ -132,14 +132,14 @@ AV.Cloud.define('check_spam', function(req) {
 				results[i].set('isSpam', false);
 				results[i].save();
 			}
-			resolve(results,i);
+			const obj={results:results,i:i}
+			resolve(obj);
 		}catch(e){
 			console.log(results[i])
 			console.log(e)
 		}
-		}).then((results,i)=>{
-			console.log(results)
-			console.log(i)
+		}).then(obj)=>{
+			let {results,i} = obj
             setTimeout(SpamChecker(results,i+1),500)
         }).catch(()=>{
 
