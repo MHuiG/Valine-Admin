@@ -109,6 +109,7 @@ AV.Cloud.define('check_spam', function(req) {
     query.notEqualTo('isSpam', true);
     query.limit(1000);
 	const SpamChecker=(results,i)=>{
+		new Promise((resolve, reject)=>{
 		if(i==results.length){
 			return
 		}
@@ -134,6 +135,12 @@ AV.Cloud.define('check_spam', function(req) {
 			console.log(results[i])
 			console.log(e)
 		}
+		resolve(i);
+		}).then((count)=>{
+            console.log(`第${i}条处理完毕！`);
+        }).catch(()=>{
+
+        });
 	}
     query.find().then(function(results) {
 		
@@ -141,7 +148,7 @@ AV.Cloud.define('check_spam', function(req) {
 			console.log(`共检查${count}条评论`);
 			SpamChecker(results,0)
 			
-        
+
     });
 	return 0;
 });
