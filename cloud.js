@@ -136,7 +136,7 @@ AV.Cloud.define('check_spam', function(req) {
     query.find().then(function(results) {
 		count = results.length;
 		console.log(`共检查${count}条评论`);
-		return Promise.all(results.map(function (element, index, array) {
+		return Promise.all(results.forEach(function (element, index, array) {
 			     return SpamChecker(element)
 				});
 			).then(()=>{
