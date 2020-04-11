@@ -132,24 +132,21 @@ AV.Cloud.define('check_spam', function(req) {
 				results[i].set('isSpam', false);
 				results[i].save();
 			}
-			resolve({results:results,i:i});
+			resolve([results,i]);
 		}catch(e){
 			console.log(results[i])
 			console.log(e)
 		}
-		}).then({results,i})=>{
+		}).then([results,i])=>{
             setTimeout(SpamChecker(results,i+1),500)
         }).catch(()=>{
 
         });
 	}
     query.find().then(function(results) {
-		
-			count = results.length;
-			console.log(`共检查${count}条评论`);
-			SpamChecker(results,0)
-			
-
+		count = results.length;
+		console.log(`共检查${count}条评论`);
+		SpamChecker(results,0)
     });
 	return 0;
 });
