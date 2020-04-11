@@ -128,6 +128,7 @@ AV.Cloud.define('check_spam', function(req) {
 				console.log(results[i]);
 				console.log('Email未通过审核..');
 			}else{
+				console.log('通过审核..');
 				results[i].set('isSpam', false);
 				results[i].save();
 			}
@@ -137,6 +138,8 @@ AV.Cloud.define('check_spam', function(req) {
 			console.log(e)
 		}
 		}).then((results,i)=>{
+			console.log(results)
+			console.log(i)
             setTimeout(SpamChecker(results,i+1),500)
         }).catch(()=>{
 
