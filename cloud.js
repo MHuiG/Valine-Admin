@@ -107,44 +107,42 @@ AV.Cloud.define('check_spam', function(req) {
     let query = new AV.Query(Comment);
 	query.descending('createdAt');
     query.notEqualTo('isSpam', true);
-    query.limit(1000);
-	const SpamChecker=(results,i)=>{
-		console.log("正在处理第"+i+"条")
-		new Promise((resolve, reject)=>{
+    query.notEqualTo('isSpam', false);
+    query.limit(100);
+	const SpamChecker=(o)=>{
 		try{
-			if ((typeof results[i].get('ip') == 'undefined')||(!(IPv4reg.test(results[i].get('ip'))||IPv6reg.test(results[i].get('ip'))))){
-				results[i].set('isSpam', true);
-				results[i].setACL(new AV.ACL({"*":{"read":false}}));
-				results[i].save();
-				console.log(results[i]);
+			if ((typeof o.get('ip') == 'undefined')||(!(IPv4reg.test(o.get('ip'))||IPv6reg.test(o.get('ip'))))){
+				o.set('isSpam', true);
+				o.setACL(new AV.ACL({"*":{"read":false}}));
+				o.save();
+				console.log(o);
 				console.log('IP未通过审核..');
-			}else if ((typeof results[i].get('mail') == 'undefined')||(!Emailreg.test(results[i].get('mail')))){
-				results[i].set('isSpam', true);
-				results[i].setACL(new AV.ACL({"*":{"read":false}}));
-				results[i].save();
-				console.log(results[i]);
+			}else if ((typeof o.get('mail') == 'undefined')||(!Emailreg.test(o.get('mail')))){
+				o.set('isSpam', true);
+				o.setACL(new AV.ACL({"*":{"read":false}}));
+				o.save();
+				console.log(o);
 				console.log('Email未通过审核..');
 			}else{
 				console.log('通过审核..');
-				results[i].set('isSpam', false);
-				results[i].save();
+				o.set('isSpam', false);
+				o.save();
 			}
-			resolve([results,i]);
 		}catch(e){
-			console.log(results[i])
+			console.log(o)
 			console.log(e)
 		}
-		}).then(([results,i])=>{
-			if (i==results.length){return}
-            setTimeout(SpamChecker(results,i+1),1000)
-        }).catch(()=>{
-
-        });
 	}
     query.find().then(function(results) {
 		count = results.length;
 		console.log(`共检查${count}条评论`);
-		SpamChecker(results,0)
+		return Promise.all(results.map(function (element, index, array) {
+			return SpamChecker(element)
+		}).then(()=>{
+			console.log(`检查完成`);
+        }).catch(()=>{
+
+        });
     });
 	return 0;
 });
