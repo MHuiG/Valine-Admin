@@ -107,7 +107,6 @@ AV.Cloud.define('check_spam', function(req) {
     let query = new AV.Query(Comment);
 	query.descending('createdAt');
     query.notEqualTo('isSpam', true);
-    query.notEqualTo('isSpam', false);
     query.limit(1000);
 	const SpamChecker=(o)=>{
 		try{
