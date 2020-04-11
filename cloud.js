@@ -129,8 +129,7 @@ AV.Cloud.define('check_spam', function(req) {
 				results[i].set('isSpam', false);
 				results[i].save();
 			}
-			resolve(results.length);
-			setTimeout(SpamChecker(results,i+1), 500)
+			SpamChecker(results,i+1)
 		}catch(e){
 			console.log(results[i])
 			console.log(e)
@@ -141,6 +140,7 @@ AV.Cloud.define('check_spam', function(req) {
 			count = results.length;
 			console.log(`共检查${count}条评论`);
 			SpamChecker(results,0)
+			resolve(count);
         }).then((count)=>{
             console.log(`${count}条处理完毕！`);
         }).catch(()=>{
