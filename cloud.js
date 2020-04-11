@@ -109,6 +109,7 @@ AV.Cloud.define('check_spam', function(req) {
     query.notEqualTo('isSpam', true);
     query.limit(1000);
 	const SpamChecker=(results,i)=>{
+		console.log("正在处理第"+i+"条")
 		new Promise((resolve, reject)=>{
 		if(i==results.length){
 			return
