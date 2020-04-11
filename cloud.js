@@ -111,9 +111,6 @@ AV.Cloud.define('check_spam', function(req) {
 	const SpamChecker=(results,i)=>{
 		console.log("正在处理第"+i+"条")
 		new Promise((resolve, reject)=>{
-		if(i==results.length){
-			return
-		}
 		try{
 			if ((typeof results[i].get('ip') == 'undefined')||(!(IPv4reg.test(results[i].get('ip'))||IPv6reg.test(results[i].get('ip'))))){
 				results[i].set('isSpam', true);
@@ -138,7 +135,8 @@ AV.Cloud.define('check_spam', function(req) {
 			console.log(e)
 		}
 		}).then(([results,i])=>{
-            setTimeout(SpamChecker(results,i+1),500)
+			if (i==results.length){return}
+            setTimeout(SpamChecker(results,i+1),1000)
         }).catch(()=>{
 
         });
