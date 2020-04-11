@@ -136,16 +136,12 @@ AV.Cloud.define('check_spam', function(req) {
 		}
 	}
     query.find().then(function(results) {
-		new Promise((resolve, reject)=>{
+		
 			count = results.length;
 			console.log(`共检查${count}条评论`);
 			SpamChecker(results,0)
-			resolve(count);
-        }).then((count)=>{
-            console.log(`${count}条处理完毕！`);
-        }).catch(()=>{
-
-        });
+			
+        
     });
 	return 0;
 });
