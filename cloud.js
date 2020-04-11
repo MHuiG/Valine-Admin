@@ -108,7 +108,7 @@ AV.Cloud.define('check_spam', function(req) {
 	query.descending('createdAt');
     query.notEqualTo('isSpam', true);
     query.notEqualTo('isSpam', false);
-    query.limit(1);
+    query.limit(1000);
 	const SpamChecker=(o)=>{
 		try{
 			if ((typeof o.get('ip') == 'undefined')||(!(IPv4reg.test(o.get('ip'))||IPv6reg.test(o.get('ip'))))){
