@@ -14,7 +14,13 @@ router.get('/', function (req, res, next) {
         query.limit(100);
         query.find().then(function (results) {
 			for(var i = 0; i < results.length; i++) {
-				results[i].set('comment',xss(results[i].get('comment')))
+				results[i].set('comment',xss(results[i].get('comment'),{
+				onIgnoreTagAttr (tag, name, value, isWhiteAttr) {
+				  if (name === 'class') {
+					return `${name}="${xss.escapeAttrValue(value)}"`
+				  }
+				}
+			  }))
 			}
             res.render('comments', {
                 title: process.env.SITE_NAME + '上的评论',
