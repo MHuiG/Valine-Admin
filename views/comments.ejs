@@ -2,6 +2,7 @@
 <html>
 <head>
     <title><%= title %></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js/styles/github.css">
     <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
@@ -60,5 +61,25 @@
         <% } %>
     </ul>
 </div>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6" async></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<script>
+  window['MathJax'] = {
+	  tex: {
+		inlineMath: [ ['$','$']],
+		autoload: {
+			verb: ['verb'],
+			color: [],
+			colorV2: ['color'],
+			require:['require']
+		},
+		packages: {'[+]': ['braket']}
+	  },
+	  loader: {load: ['[tex]/braket']},
+	  svg: {
+		fontCache: 'global'
+	  }
+  };
+</script>
 </body>
 </html>
