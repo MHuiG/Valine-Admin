@@ -3,7 +3,7 @@ const router = require('express').Router();
 const AV = require('leanengine');
 const mail = require('../utilities/send-mail');
 const spam = require('../utilities/check-spam');
-
+const xss = require('xss');
 const Comment = AV.Object.extend('Comment');
 
 // Comment 列表
@@ -11,8 +11,17 @@ router.get('/', function (req, res, next) {
     if (req.currentUser) {
         let query = new AV.Query(Comment);
         query.descending('createdAt');
-        query.limit(50);
+        query.limit(100);
         query.find().then(function (results) {
+			for(var i = 0; i < results.length; i++) {
+				results[i].set('comment',xss(results[i].get('comment'),{
+				onIgnoreTagAttr (tag, name, value, isWhiteAttr) {
+				  if (name === 'class') {
+					return `${name}="${xss.escapeAttrValue(value)}"`
+				  }
+				}
+			  }))
+			}
             res.render('comments', {
                 title: process.env.SITE_NAME + '上的评论',
                 comment_list: results
