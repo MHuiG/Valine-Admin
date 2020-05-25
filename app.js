@@ -6,6 +6,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var AV = require('leanengine');
+const searcher = require('evenboy-ip2region').create();
 
 // 加载云函数定义，你可以将云函数拆分到多个文件方便管理，但需要在主文件中加载它们
 require('./cloud');
@@ -32,6 +33,93 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(AV.Cloud.CookieSession({ secret: 'my secret', maxAge: 3600000, fetchUser: true }));
+
+
+//查询IP
+app.get('/lookUp', function (req, res, next) {
+  if(!req.query.ip){
+    res.json({
+      success:false,
+      msg:'IP不存在',
+      data:null
+    });
+    return;
+  }
+  searcher.binarySearch(req.query.ip, function (err, tempData) {
+    if (err) {
+      res.json({
+        success:false,
+        msg:'解析错误',
+        data:null
+      });
+      return;
+    }
+    console.log(tempData);
+    let data=tempData.region.split("|");
+    res.json({
+        success:true,
+        msg:'解析成功',
+        data:{
+          ip:req.query.ip,
+          country:data[0],
+          province:data[2],
+          city:data[3],
+          isp:data[4]
+        }
+    })
+    
+  });
+});
+
+
+//根据访问者IP返回区域
+app.get('/getIp', function (req, res, next) {
+  if(req.ip=="::1"){
+    res.json({
+      success:true,
+      msg:'解析成功',
+      data:{
+        ip:'::1',
+        country:0,
+        province:0,
+        city:0,
+        isp:'本地IP'
+      }
+  });
+  return;
+  }
+  let ip = getClientIp(req).match(/\d+.\d+.\d+.\d+/)[0];
+  searcher.binarySearch(ip, function (err, tempData) {
+    if (err) {
+      res.json({
+        success:false,
+        msg:'解析错误',
+        data:null
+      });
+      return;
+    }
+    let data=tempData.region.split("|");
+    res.json({
+        success:true,
+        msg:'解析成功',
+        data:{
+          ip:ip,
+          country:data[0],
+          province:data[2],
+          city:data[3],
+          isp:data[4]
+        }
+    })
+  });
+});
+
+
+let getClientIp = function (req) {
+  return req.headers['x-forwarded-for'] ||
+      req.connection.remoteAddress ||
+      req.socket.remoteAddress ||
+      req.connection.socket.remoteAddress || '';
+};
 
 app.get('/', function(req, res) {
     if (req.currentUser) {
