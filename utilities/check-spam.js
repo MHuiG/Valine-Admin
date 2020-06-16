@@ -5,7 +5,7 @@ const akismetClient = akismet.client({
     key  : process.env.AKISMET_KEY,
     blog : process.env.SITE_URL
 });
-
+const block = require('./block');
 exports.checkSpam = (comment, ip)=> {
     if (process.env.AKISMET_KEY === 'MANUAL_REVIEW') {
         console.log('已使用人工审核模式，评论审核后才会发表~');
@@ -34,6 +34,7 @@ exports.checkSpam = (comment, ip)=> {
                 if (err) console.log (`垃圾评论检测出错！${err}`);
                 if (spam) {
                     console.log('逮到一只垃圾评论，烧死它！用文火~');
+					block.add(comment);
                     comment.set('isSpam', true);
                     comment.setACL(new AV.ACL({"*":{"read":false}}));
                     comment.save();

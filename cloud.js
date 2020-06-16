@@ -1,47 +1,10 @@
 const AV = require('leanengine');
 const mail = require('./utilities/send-mail');
 const Comment = AV.Object.extend('Comment');
-const Block = AV.Object.extend('Block');
 const request = require('postman-request');
 const spam = require('./utilities/check-spam');
+const block = require('./utilities/block');
 
-function createBlocker(Block,o){
-	const newBlock = new Block();
-	const acl = new AV.ACL()
-	acl.setPublicReadAccess(true)
-	acl.setPublicWriteAccess(true)
-	newBlock.setACL(acl)
-	newBlock.set('ip', o.get('ip'))
-	newBlock.set('ua', o.get('ua'))
-	newBlock.set('time',1)
-	newBlock.save().catch(ex => {
-		console.log(ex)
-	})
-}
-
-function addBlocker(o){
-    const query = new AV.Query(Block)
-    query.equalTo('ip', o.get('ip'))
-    query.find().then(ret => {
-      if (ret.length > 0) {
-		var v = ret[0]
-		for (var i=0;i<ret.length;i++){
-			if(ret[i].get("ua")==o.get('ua')){
-				v = ret[i]
-				return
-			}
-		}
-        v.increment('time')
-        v.save().catch(ex => {
-          console.log(ex)
-        })
-      } else {
-        createBlocker(Block, o)
-      }
-    }).catch(ex => {
-      ex.code == 101 && createBlocker(Block, o)
-    })
-}
 
 function sendNotification(currentComment, defaultIp) {
 	
@@ -56,28 +19,28 @@ function sendNotification(currentComment, defaultIp) {
 	let IPv6reg = /^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$/
 	let Emailreg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
 	if ((typeof currentComment.get('ip') == 'undefined')||(!(IPv4reg.test(currentComment.get('ip'))||IPv6reg.test(currentComment.get('ip'))))){
+		block.add(currentComment);
 		currentComment.set('isSpam', true);
 		currentComment.setACL(new AV.ACL({"*":{"read":false}}));
 		currentComment.save();
 		console.log('IP未通过审核..');
-		addBlocker(currentComment);
 		return
 	}else{
 	    spam.checkSpam(currentComment, ip);
 	}
 	console.log('Email: %s', currentComment.get('mail'));
     if ((typeof currentComment.get('mail') == 'undefined')||(!Emailreg.test(currentComment.get('mail')))){
+		block.add(currentComment);
 		currentComment.set('isSpam', true);
 		currentComment.setACL(new AV.ACL({"*":{"read":false}}));
 		currentComment.save();
 		console.log('Email未通过审核..');
-		addBlocker(currentComment);
 		return
 	}
 
 	if (currentComment.get('isSpam')) {
+		block.add(currentComment);
         console.log('评论未通过审核，通知邮件暂不发送');
-		addBlocker(currentComment);
         return;
     }
 
