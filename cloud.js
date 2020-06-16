@@ -10,12 +10,6 @@ function sendNotification(currentComment, defaultIp) {
 		console.log('TestPath，不会发送通知');
 		return;
 	}
-    // 发送博主通知邮件
-	if (process.env.SEND_BLOGGER_EMAIL!=0){
-		if (currentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
-			mail.notice(currentComment);
-		}
-	}
 
     let ip = currentComment.get('ip') || defaultIp;
     console.log('IP: %s', ip);
@@ -39,20 +33,24 @@ function sendNotification(currentComment, defaultIp) {
 		console.log('Email未通过审核..');
 		return
 	}
-	
-	
-    // AT评论通知
-    let rid =currentComment.get('pid') || currentComment.get('rid');
 
-    if (!rid) {
-        console.log("这条评论没有 @ 任何人");
-        return;
-    } else if (currentComment.get('isSpam')) {
+	if (currentComment.get('isSpam')) {
         console.log('评论未通过审核，通知邮件暂不发送');
         return;
     }
 
-	
+    // 发送博主通知邮件
+	if (process.env.SEND_BLOGGER_EMAIL!=0){
+		if (currentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
+			mail.notice(currentComment);
+		}
+	}
+	// 发送AT评论通知
+    let rid =currentComment.get('pid') || currentComment.get('rid');
+    if (!rid) {
+        console.log("这条评论没有 @ 任何人");
+        return;
+    }
     let query = new AV.Query('Comment');
     query.get(rid).then(function (parentComment) {
         if (parentComment.get('mail') && parentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
