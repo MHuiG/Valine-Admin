@@ -1,8 +1,47 @@
 const AV = require('leanengine');
 const mail = require('./utilities/send-mail');
 const Comment = AV.Object.extend('Comment');
+const Block = AV.Object.extend('Block');
 const request = require('postman-request');
 const spam = require('./utilities/check-spam');
+
+function createBlocker(Block,o){
+	const newBlock = new Block();
+	const acl = new AV.ACL()
+	acl.setPublicReadAccess(true)
+	acl.setPublicWriteAccess(true)
+	newBlock.setACL(acl)
+	newBlock.set('ip', o.get('ip'))
+	newBlock.set('ua', o.get('ua'))
+	newBlock.set('time',1)
+	newBlock.save().catch(ex => {
+		console.log(ex)
+	})
+}
+
+function addBlocker(o){
+    const query = new AV.Query(Block)
+    query.equalTo('ip', o.get('ip'))
+    query.find().then(ret => {
+      if (ret.length > 0) {
+		var v = ret[0]
+		for (var i=0;i<ret.length;i++){
+			if(ret[i].get("ua")==o.get('ua')){
+				var v = ret[i]
+				return
+			}
+		}
+        v.increment('time')
+        v.save().catch(ex => {
+          console.log(ex)
+        })
+      } else {
+        createBlocker(Block, o)
+      }
+    }).catch(ex => {
+      ex.code == 101 && createBlocker(Block, o)
+    })
+}
 
 function sendNotification(currentComment, defaultIp) {
 	
@@ -21,6 +60,7 @@ function sendNotification(currentComment, defaultIp) {
 		currentComment.setACL(new AV.ACL({"*":{"read":false}}));
 		currentComment.save();
 		console.log('IP未通过审核..');
+		addBlocker(currentComment);
 		return
 	}else{
 	    spam.checkSpam(currentComment, ip);
@@ -31,11 +71,13 @@ function sendNotification(currentComment, defaultIp) {
 		currentComment.setACL(new AV.ACL({"*":{"read":false}}));
 		currentComment.save();
 		console.log('Email未通过审核..');
+		addBlocker(currentComment);
 		return
 	}
 
 	if (currentComment.get('isSpam')) {
         console.log('评论未通过审核，通知邮件暂不发送');
+		addBlocker(currentComment);
         return;
     }
 
