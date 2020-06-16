@@ -5,7 +5,7 @@ const mail = require('../utilities/send-mail');
 const spam = require('../utilities/check-spam');
 const xss = require('xss');
 const Comment = AV.Object.extend('Comment');
-
+const block = require('../utilities/block');
 // Comment 列表
 router.get('/', function (req, res, next) {
     if (req.currentUser) {
@@ -90,6 +90,7 @@ router.get('/mark-spam', function (req, res, next) {
     if (req.currentUser) {
         let query = new AV.Query(Comment);
         query.get(req.query.id).then(function (object) {
+			block.add(object);
             object.set('isSpam', true);
             object.set('ACL', {"*":{"read":false}} );
             object.save();
