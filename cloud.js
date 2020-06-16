@@ -27,7 +27,7 @@ function addBlocker(o){
 		var v = ret[0]
 		for (var i=0;i<ret.length;i++){
 			if(ret[i].get("ua")==o.get('ua')){
-				var v = ret[i]
+				v = ret[i]
 				return
 			}
 		}
