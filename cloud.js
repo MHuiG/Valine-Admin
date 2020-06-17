@@ -5,31 +5,30 @@ const request = require('postman-request');
 const spam = require('./utilities/check-spam');
 const block = require('./utilities/block');
 
-
 function sendNotification(currentComment, defaultIp) {
-	
 	if(currentComment.get('url')=="TestPath"){
 		console.log('TestPath，不会发送通知');
 		return;
 	}
-
     let ip = currentComment.get('ip') || defaultIp;
     console.log('IP: %s', ip);
 	let IPv4reg = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/
 	let IPv6reg = /^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$/
+	let localAreg = /^10\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$/   //10.0.0.0~10.255.255.255（A类）
+	let localBreg = /^172\.(1[6789]|2[0-9]|3[01])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$/   //172.16.0.0~172.31.255.255（B类）
+	let localCreg = /^192\.168\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])\.(1\d{2}|2[0-4]\d|25[0-5]|[1-9]\d|[0-9])$/   //192.168.0.0~192.168.255.255（C类）
+	let localreg = /^127(.(([1-9]?|1[0-9])[0-9]|2([0-4][0-9]|5[0-5]))){3}$/   //回环127
 	let Emailreg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
-	if ((typeof currentComment.get('ip') == 'undefined')||(!(IPv4reg.test(currentComment.get('ip'))||IPv6reg.test(currentComment.get('ip'))))){
+	if ((typeof currentComment.get('ip') == 'undefined')||(!(IPv4reg.test(currentComment.get('ip'))||IPv6reg.test(currentComment.get('ip'))))||(localAreg.test(currentComment.get('ip')))||(localBreg.test(currentComment.get('ip')))||(localCreg.test(currentComment.get('ip')))||(localreg.test(currentComment.get('ip')))){
 		block.add(currentComment);
 		currentComment.set('isSpam', true);
 		currentComment.setACL(new AV.ACL({"*":{"read":false}}));
 		currentComment.save();
 		console.log('IP未通过审核..');
 		return
-	}else{
-	    spam.checkSpam(currentComment, ip);
 	}
 	console.log('Email: %s', currentComment.get('mail'));
-    if ((typeof currentComment.get('mail') == 'undefined')||(!Emailreg.test(currentComment.get('mail')))){
+	if ((typeof currentComment.get('mail') == 'undefined')||(!Emailreg.test(currentComment.get('mail')))){
 		block.add(currentComment);
 		currentComment.set('isSpam', true);
 		currentComment.setACL(new AV.ACL({"*":{"read":false}}));
@@ -37,41 +36,41 @@ function sendNotification(currentComment, defaultIp) {
 		console.log('Email未通过审核..');
 		return
 	}
-
-	if (currentComment.get('isSpam')) {
-		block.add(currentComment);
-        console.log('评论未通过审核，通知邮件暂不发送');
-        return;
-    }
-
-    // 发送博主通知邮件
-	if (process.env.SEND_BLOGGER_EMAIL!=0){
-		if (currentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
-			mail.notice(currentComment);
+	spam.checkSpam(currentComment, ip);
+	setTimeout(function() {
+		if (currentComment.get('isSpam')) {
+			block.add(currentComment);
+			console.log('评论未通过审核，通知邮件暂不发送');
+			return;
 		}
-	}
-	// 发送AT评论通知
-    let rid =currentComment.get('pid') || currentComment.get('rid');
-    if (!rid) {
-        console.log("这条评论没有 @ 任何人");
-        return;
-    }
-    let query = new AV.Query('Comment');
-    query.get(rid).then(function (parentComment) {
-        if (parentComment.get('mail') && parentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
-            mail.send(currentComment, parentComment);
-        } else {
-            console.log('被@者匿名，不会发送通知');
-        }
-        
-    }, function (error) {
-        console.warn('获取@对象失败！');
-    });
+		// 发送博主通知邮件
+		if (process.env.SEND_BLOGGER_EMAIL!=0){
+			if (currentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
+				mail.notice(currentComment);
+			}
+		}
+		// 发送AT评论通知
+		let rid =currentComment.get('pid') || currentComment.get('rid');
+		if (!rid) {
+			console.log("这条评论没有 @ 任何人");
+			return;
+		}
+		let query = new AV.Query('Comment');
+		query.get(rid).then(function (parentComment) {
+			if (parentComment.get('mail') && parentComment.get('mail') !== process.env.BLOGGER_EMAIL) {
+				mail.send(currentComment, parentComment);
+			} else {
+				console.log('被@者匿名，不会发送通知');
+			}
+			
+		}, function (error) {
+			console.warn('获取@对象失败！');
+		});
+	},20000);
 }
 
 AV.Cloud.afterSave('Comment', function (req) {
     let currentComment = req.object;
-    // 检查垃圾评论
     return sendNotification(currentComment, req.meta.remoteAddress);
 });
 
@@ -79,7 +78,7 @@ AV.Cloud.define('resend_mails', function(req) {
     let query = new AV.Query(Comment);
     query.greaterThanOrEqualTo('createdAt', new Date(new Date().getTime() - 24*60*60*1000));
     query.notEqualTo('isNotified', true);
-    // 如果你的评论量很大，可以适当调高数量限制，最高1000
+    // max 1000
     query.limit(1000);
     return query.find().then(function(results) {
         new Promise((resolve, reject)=>{

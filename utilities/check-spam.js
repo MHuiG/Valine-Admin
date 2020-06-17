@@ -17,7 +17,6 @@ exports.checkSpam = (comment, ip)=> {
     akismetClient.verifyKey(function(err, valid) {
         if (err) console.log('Akismet key 异常:', err.message);
         if (valid) {
-            // TODO(1) 这里有缺陷
             comment.set('ip', ip);
             akismetClient.checkSpam({
                 user_ip : ip,
@@ -36,6 +35,7 @@ exports.checkSpam = (comment, ip)=> {
                     console.log('逮到一只垃圾评论，烧死它！用文火~');
 					block.add(comment);
                     comment.set('isSpam', true);
+					comment.set('isNotified', true);
                     comment.setACL(new AV.ACL({"*":{"read":false}}));
                     comment.save();
                     // comment.destroy();
