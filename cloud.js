@@ -10,14 +10,6 @@ function sendNotification(currentComment, defaultIp) {
 		console.log('TestPath，不会发送通知');
 		return;
 	}
-	if (process.env.TEST!=1){
-		let curl= currentComment.get('url')
-		if (!(curl==""||curl=="TestPath"||curl=="/xCss.html"||curl=="/DesertsP.html")){
-			let ccmt=currentComment.get('comment')+`<br/><p><strong>Get <code>App ID</code>/<code>App Key</code> from LeanCloud</strong><br><a href="https://leancloud.cn/dashboard/login.html#/signup">Click here</a> to register or login in <code>LeanCloud</code>.<br><a href="https://leancloud.cn/dashboard/applist.html#/newapp">Click here</a> Create new application in <code>LeanCloud</code>, and you will get <code>appId</code>/<code>appKey</code>.</p>`
-			currentComment.set('comment', ccmt);
-			currentComment.save();
-		}
-	}
     let ip = currentComment.get('ip') || defaultIp;
     console.log('IP: %s', ip);
 	let IPv4reg = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/
